@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="km">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            padding-bottom: 250px;
+
+        }
+
+        /* --- THE FIXED ROLLING FOOTER --- */
+        #rf-ad-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 99999;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            pointer-events: none;
+            transition: transform 0.4s ease;
+        }
+
+        .rf-wrapper {
+            position: relative;
+            width: 720px;
+            height: 250px;
+            background: transparent;
+            pointer-events: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .rf-slot {
+            width: 720px;
+            height: 250px;
+            overflow: visible;
+            display: flex;
+            justify-content: center;
+
+        }
+
+        /* Float Close Button directly on the ad edge */
+        .rf-close-btn {
+            position: absolute;
+            top: -30px;
+            /* Sits above the container */
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border: none;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            z-index: 100;
+            pointer-events: auto;
+        }
+
+        /* --- NEW: Style for the Image Content --- */
+        .sknteam_image {
+            display: flex;
+            justify-content: center;
+            /* Center horizontally */
+            align-items: flex-end;
+            /* Align to the bottom of the 250px container */
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .sknteam_image img {
+            /* Fills the 250px height of the slot */
+            height: 100%;
+            /* Width is automatic to keep aspect ratio: */
+            width: auto;
+            max-width: 100%;
+            /* Prevents horizontal overflow */
+            display: block;
+            pointer-events: none;
+            /* Decorative graphic: cannot drag-and-drop */
+        }
+
+        /* --- MOBILE FIX --- */
+        @media (max-width: 720px) {
+            .rf-wrapper {
+                width: 100vw;
+                height: 34.7vw;
+                /* Keeps 720:250 ratio */
+            }
+
+            .rf-slot {
+                width: 100%;
+                height: 100%;
+            }
+
+            .sknteam_image img {
+                /* Mimics the Iframe scaling in your provided CSS */
+                transform: scale(calc(100vw / 720));
+                transform-origin: bottom center;
+            }
+
+            .rf-close-btn {
+                right: 5px;
+                top: -30px;
+            }
+
+            body {
+                padding-bottom: 35vw;
+                /* Adjust body space on mobile */
+            }
+        }
+
+        .rf-collapsed {
+            transform: translateY(110%);
+        }
+
+
+        .rf-close-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            z-index: 1000;
+            pointer-events: auto;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+
+        }
+
+        /* Hover effect */
+        .rf-close-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: scale(1.1);
+
+        }
+
+        /* Small adjustment for mobile to ensure it's tappable */
+        @media (max-width: 720px) {
+            .rf-close-btn {
+                .rf-close-btn {
+                    top: 5px;
+                    right: 5px;
+                    width: 22px;
+                    height: 22px;
+                    font-size: 10px;
+                }
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div style="padding: 20px; max-width: 800px; margin: auto; background: white;">
+        <h2>ត្រៀមរៀបចំព្រឹត្តិការណ៍ "អង្គរសង្ក្រាន្ត" ដ៏ធំសម្បើមនៅខេត្តសៀមរាប ដើម្បីអបអរសាទរបុណ្យចូលឆ្នាំថ្មី</h2>
+
+        <div class="sknteam_image">
+            <img src="https://sknteam.com/media/ai_cambodia.jpeg" alt="News Image" />
+        </div>
+
+        <p>
+            <strong>ខេត្តសៀមរាប៖</strong> អាជ្ញាធរខេត្តសៀមរាបបានប្រកាសថា
+            ត្រៀមខ្លួនរួចជាស្រេចក្នុងការរៀបចំព្រឹត្តិការណ៍
+            "អង្គរសង្ក្រាន្ត" ឆ្នាំ២០២៦ ខាងមុខនេះ។ ព្រឹត្តិការណ៍នេះនឹងនាំមកនូវការបង្ហាញវប្បធម៌ខ្មែរដ៏សម្បូរបែប
+            ល្បែងប្រជាប្រិយ និងការប្រគំតន្ត្រីខ្នាតធំដើម្បីទទួលស្វាគមន៍ភ្ញៀវទេសចរជាតិ និងអន្តរជាតិ។
+        </p>
+
+        <p>
+            លោកអភិបាលខេត្តបានបញ្ជាក់ថា ការរៀបចំនៅឆ្នាំនេះនឹងមានភាពខុសប្លែកពីឆ្នាំមុនៗ
+            ដោយមានការបន្ថែមនូវតំបន់កម្សាន្តថ្មីៗ
+            និងការតាំងពិព័រណ៍ផលិតផលក្នុងស្រុកមកពីគ្រប់ខេត្តក្រុង។ នេះគឺជាឱកាសដ៏ល្អក្នុងការបង្ហាញពីសន្តិភាព
+            និងការរីកចម្រើននៃវិស័យទេសចរណ៍នៅក្នុងតំបន់សៀមរាបអង្គរ។
+        </p>
+
+        <p>
+            ទន្ទឹមនឹងនេះដែរ កម្លាំងសមត្ថកិច្ចគ្រប់លំដាប់ថ្នាក់បានត្រៀមលក្ខណៈរួចជាស្រេច ដើម្បីការពារសន្តិសុខ
+            និងសណ្តាប់ធ្នាប់ជូនបងប្អូនប្រជាពលរដ្ឋ។ អាជ្ញាធរក៏បានអំពាវនាវដល់ម្ចាស់អាជីវកម្មសេវាកម្មទេសចរណ៍ទាំងអស់
+            កុំឲ្យមានការដំឡើងថ្លៃហួសហេតុក្នុងអំឡុងពេលបុណ្យប្រពៃណីជាតិនេះ។
+        </p>
+
+        <p>
+            គួរបញ្ជាក់ផងដែរថា ព្រឹត្តិការណ៍អង្គរសង្ក្រាន្តមិនត្រឹមតែជាការសប្បាយរីករាយប៉ុណ្ណោះទេ
+            ប៉ុន្តែវាក៏ជាការរួមចំណែកយ៉ាងសំខាន់ក្នុងការថែរក្សា
+            និងលើកកម្ពស់មរតកវប្បធម៌ដូនតាខ្មែរឲ្យកាន់តែល្បីល្បាញលើឆាកអន្តរជាតិ។
+        </p>
+
+        <div class="sknteam_image">
+            <img src="https://sknteam.com/media/ai_cambodia.jpeg" alt="Footer Logo" />
+        </div>
+
+
+
+    </div>
+
+    <div id="rf-ad-container">
+        <div class="rf-wrapper">
+
+            <button class="rf-close-btn" onclick="closeRF()">✕</button>
+
+            <div class="rf-slot">
+                <iframe src="./index.html" width="720" height="250" scrolling="no" frameborder="0"
+                    allowtransparency="true">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeRF() {
+            document.getElementById('rf-ad-container').classList.add('rf-collapsed');
+        }
+    </script>
+
+</body>
+
+</html>
