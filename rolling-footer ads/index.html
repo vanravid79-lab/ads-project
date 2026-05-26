@@ -4,44 +4,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottie 300x600 Ad</title>
+    <title>Rolling Footer Ad</title>
 
     <style>
         html,
-
         body {
             margin: 0;
             padding: 0;
             height: 100%;
-
+            overflow: hidden;
+            background: #000;
         }
 
-        /* 🎯 Ad container */
+        /* 🎯 Ad container layout setup */
         .banner {
-            margin: 0;
-            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        /* 🔄 Infinite marquee rolling track */
+        .rolling-track {
+            display: flex;
+            width: max-content;
+            height: 100%;
+            animation: rollMarquee 50s linear infinite;
+        }
+
+        /* Make each ad item exact size constraint */
+        .ad-item {
+            width: 100vw;
+            max-width: 720px;
+            height: 100%;
+            flex-shrink: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-item lottie-player {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Pause rolling on hover */
+        .banner:hover .rolling-track {
+            animation-play-state: paused;
+        }
+
+        /* 🎞️ Keyframe logic for seamless 3-item loop translation */
+        @keyframes rollMarquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                /* Moves exactly by the 3 original items */
+                transform: translateX(min(-2160px, -300vw));
+            }
         }
     </style>
 
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
-    <script>
-        var clickTag = "https://www.google.com";
-    </script>
 
 </head>
 
 <body>
 
-    <div class="banner" onclick="window.open(clickTag,'_blank')">
+    <div class="banner">
+        <div class="rolling-track">
 
-        <lottie-player src="./data1.json" background="transparent" speed="1" loop autoplay>
-        </lottie-player>
+            <div class="ad-item" onclick="window.open(clickTag,'_blank')">
+                <lottie-player src="./data1.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            </div>
 
+            <div class="ad-item" onclick="window.open(clickTag,'_blank')">
+                <lottie-player src="./data2.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            </div>
 
+            <div class="ad-item" onclick="window.open(clickTag,'_blank')">
+                <lottie-player src="./data3.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            </div>
 
+        </div>
     </div>
 
 </body>
+<script>
+    var clickTag = "https://www.google.com";
+
+    // Automatically clones the items on load to keep the code clean
+    window.addEventListener('DOMContentLoaded', () => {
+        const track = document.querySelector('.rolling-track');
+        const items = Array.from(track.children);
+
+        // Clone each item and append to the back of the track
+        items.forEach(item => {
+            const clone = item.cloneNode(true);
+            track.appendChild(clone);
+        });
+    });
+</script>
 
 </html>

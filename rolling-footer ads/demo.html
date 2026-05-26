@@ -4,137 +4,111 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rolling Footer Demo</title>
+
     <style>
-        body {
-            font-family: 'Kantumruy Pro', sans-serif;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
             background-color: #f0f2f5;
-            padding-bottom: 250px;
-
+            /* reserve explicit layout clearance margin at bottom of content */
+            padding-bottom: 270px;
         }
 
-        /* --- THE FIXED ROLLING FOOTER --- */
-        #rf-ad-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            z-index: 99999;
-            background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            pointer-events: none;
-            transition: transform 0.4s ease;
+        /* =========================
+           PAGE CONTENT
+        ========================== */
+        .main-content-area {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            background: white;
         }
 
-        .rf-wrapper {
-            position: relative;
-            width: 720px;
-            height: 250px;
-            background: transparent;
-            pointer-events: auto;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
+        .main-content-area h2 {
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
-        .rf-slot {
-            width: 720px;
-            height: 250px;
-            overflow: visible;
-            display: flex;
-            justify-content: center;
-
+        .main-content-area p {
+            margin-bottom: 20px;
+            line-height: 1.8;
         }
 
-        /* Float Close Button directly on the ad edge */
-        .rf-close-btn {
-            position: absolute;
-            top: -30px;
-            /* Sits above the container */
-            right: 0;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            border: none;
-            padding: 5px 12px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 8px 8px 0 0;
-            z-index: 100;
-            pointer-events: auto;
-        }
-
-        /* --- NEW: Style for the Image Content --- */
         .sknteam_image {
-            display: flex;
-            justify-content: center;
-            /* Center horizontally */
-            align-items: flex-end;
-            /* Align to the bottom of the 250px container */
             width: 100%;
-            height: 100%;
             overflow: hidden;
+            margin-bottom: 20px;
+            border-radius: 12px;
         }
 
         .sknteam_image img {
-            /* Fills the 250px height of the slot */
-            height: 100%;
-            /* Width is automatic to keep aspect ratio: */
-            width: auto;
-            max-width: 100%;
-            /* Prevents horizontal overflow */
+            width: 100%;
             display: block;
+        }
+
+        /* =========================
+           FIXED AD CONTAINER VIEWPORT
+        ========================== */
+        #rf-ad-container {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 720px;
+            /* strict maximum canvas horizontal boundary */
+            z-index: 99999;
             pointer-events: none;
-            /* Decorative graphic: cannot drag-and-drop */
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
         }
 
-        /* --- MOBILE FIX --- */
-        @media (max-width: 720px) {
-            .rf-wrapper {
-                width: 100vw;
-                height: 34.7vw;
-                /* Keeps 720:250 ratio */
-            }
-
-            .rf-slot {
-                width: 100%;
-                height: 100%;
-            }
-
-            .sknteam_image img {
-                /* Mimics the Iframe scaling in your provided CSS */
-                transform: scale(calc(100vw / 720));
-                transform-origin: bottom center;
-            }
-
-            .rf-close-btn {
-                right: 5px;
-                top: -30px;
-            }
-
-            body {
-                padding-bottom: 35vw;
-                /* Adjust body space on mobile */
-            }
+        /* Proportional responsive bounding box maintaining 720:250 ratio */
+        .rf-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 34.72%;
+            /* Formula calculation: (250 / 720) * 100 */
+            pointer-events: auto;
         }
 
-        .rf-collapsed {
-            transform: translateY(110%);
+        .rf-slot {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.15);
+            background: #000;
         }
 
+        /* Frame source scale constraints */
+        .rf-slot iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
 
+        /* =========================
+           MODERN OVERLAY CLOSE BUTTON
+        ========================== */
         .rf-close-btn {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(0, 0, 0, 0.4);
-            color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            width: 24px;
-            height: 24px;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            width: 28px;
+            height: 28px;
             font-size: 12px;
             cursor: pointer;
             display: flex;
@@ -143,28 +117,42 @@
             border-radius: 50%;
             z-index: 1000;
             pointer-events: auto;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             transition: all 0.2s ease;
-            backdrop-filter: blur(4px);
-
         }
 
-        /* Hover effect */
         .rf-close-btn:hover {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             transform: scale(1.1);
-
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
-        /* Small adjustment for mobile to ensure it's tappable */
+        /* =========================
+           DISMISS STATE
+        ========================== */
+        .rf-collapsed {
+            transform: translate(-50%, 110%) !important;
+            opacity: 0;
+        }
+
+        /* =========================
+           CLEAN MOBILE RESPONSIVE MEDIA BLOCK
+        ========================== */
         @media (max-width: 720px) {
+            body {
+                /* Shrinks document clearance padding dynamically for mobile screen widths */
+                padding-bottom: calc(34.72vw + 16px);
+            }
+
+
+
             .rf-close-btn {
-                .rf-close-btn {
-                    top: 5px;
-                    right: 5px;
-                    width: 22px;
-                    height: 22px;
-                    font-size: 10px;
-                }
+                top: 8px;
+                right: 8px;
+                width: 24px;
+                height: 24px;
+                font-size: 10px;
             }
         }
     </style>
@@ -172,7 +160,7 @@
 
 <body>
 
-    <div style="padding: 20px; max-width: 800px; margin: auto; background: white;">
+    <div class="main-content-area">
         <h2>ត្រៀមរៀបចំព្រឹត្តិការណ៍ "អង្គរសង្ក្រាន្ត" ដ៏ធំសម្បើមនៅខេត្តសៀមរាប ដើម្បីអបអរសាទរបុណ្យចូលឆ្នាំថ្មី</h2>
 
         <div class="sknteam_image">
@@ -190,7 +178,7 @@
             លោកអភិបាលខេត្តបានបញ្ជាក់ថា ការរៀបចំនៅឆ្នាំនេះនឹងមានភាពខុសប្លែកពីឆ្នាំមុនៗ
             ដោយមានការបន្ថែមនូវតំបន់កម្សាន្តថ្មីៗ
             និងការតាំងពិព័រណ៍ផលិតផលក្នុងស្រុកមកពីគ្រប់ខេត្តក្រុង។ នេះគឺជាឱកាសដ៏ល្អក្នុងការបង្ហាញពីសន្តិភាព
-            និងការរីកចម្រើននៃវិស័យទេសចរណ៍នៅក្នុងតំបន់សៀមរាបអង្គរ។
+            និងការរីកចម្រើននៃវិស័យទេសចរណ៍នៅក្នុងតំបន់សៀមរាបអង្គរ整。
         </p>
 
         <p>
@@ -208,9 +196,6 @@
         <div class="sknteam_image">
             <img src="https://sknteam.com/media/ai_cambodia.jpeg" alt="Footer Logo" />
         </div>
-
-
-
     </div>
 
     <div id="rf-ad-container">
@@ -219,9 +204,7 @@
             <button class="rf-close-btn" onclick="closeRF()">✕</button>
 
             <div class="rf-slot">
-                <iframe src="./index.html" width="720" height="250" scrolling="no" frameborder="0"
-                    allowtransparency="true">
-                </iframe>
+                <iframe src="./index.html" scrolling="no" allowtransparency="true"></iframe>
             </div>
 
         </div>
