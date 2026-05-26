@@ -26,12 +26,12 @@
             align-items: center;
         }
 
-        /* 🔄 Infinite marquee rolling track */
+        /* 🔄 Infinite marquee rolling track - uses absolute % metrics for perfect loop matching */
         .rolling-track {
             display: flex;
             width: max-content;
             height: 100%;
-            animation: rollMarquee 50s linear infinite;
+            animation: rollMarquee 25s linear infinite;
         }
 
         /* Make each ad item exact size constraint */
@@ -44,12 +44,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
+        /* 🛠️ FIX 1: Prevent Lottie from swallowing clicks */
         .ad-item lottie-player {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            pointer-events: none;
+            /* Allows clicks to bleed through directly to .ad-item container */
         }
 
         /* Pause rolling on hover */
@@ -57,22 +60,19 @@
             animation-play-state: paused;
         }
 
-        /* 🎞️ Keyframe logic for seamless 3-item loop translation */
+        /* 🎞️ FIX 2: Translate exactly -50% of the combined track (since the back half is an identical duplicate) */
         @keyframes rollMarquee {
             0% {
                 transform: translateX(0);
             }
 
             100% {
-                /* Moves exactly by the 3 original items */
-                transform: translateX(min(-2160px, -300vw));
+                transform: translateX(-50%);
             }
         }
     </style>
 
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
-
 </head>
 
 <body>
@@ -80,16 +80,17 @@
     <div class="banner">
         <div class="rolling-track">
 
-            <div class="ad-item" onclick="window.open(clickTag,'_blank')">
-                <lottie-player src="./data1.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            <div class="ad-item" onclick="handleAdClick()">
+                <lottie-player src="./data6.json" background="transparent" speed="1" loop autoplay></lottie-player>
             </div>
 
-            <div class="ad-item" onclick="window.open(clickTag,'_blank')">
-                <lottie-player src="./data2.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            <div class="ad-item" onclick="handleAdClick()">
+                <lottie-player src="./data7.json" background="transparent" speed="1" loop autoplay></lottie-player>
             </div>
 
-            <div class="ad-item" onclick="window.open(clickTag,'_blank')">
-                <lottie-player src="./data3.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            <div class="ad-item" onclick="handleAdClick()">
+                <lottie-player src="./data8.json" background="transparent" speed="1" loop autoplay
+                    preserveAspectRatio="xMidYMid slice"></lottie-player>
             </div>
 
         </div>
@@ -99,7 +100,14 @@
 <script>
     var clickTag = "https://www.google.com";
 
-    // Automatically clones the items on load to keep the code clean
+    // 🛠️ FIX 3: Safe tracking function handler
+    function handleAdClick() {
+        if (typeof clickTag !== 'undefined' && clickTag) {
+            window.open(clickTag, '_blank');
+        }
+    }
+
+    // Automatically clones items to ensure a seamless infinite seamless layout wrap
     window.addEventListener('DOMContentLoaded', () => {
         const track = document.querySelector('.rolling-track');
         const items = Array.from(track.children);
@@ -107,6 +115,9 @@
         // Clone each item and append to the back of the track
         items.forEach(item => {
             const clone = item.cloneNode(true);
+
+            // Re-bind the click action cleanly onto the cloned DOM element nodes
+            clone.setAttribute('onclick', 'handleAdClick()');
             track.appendChild(clone);
         });
     });
