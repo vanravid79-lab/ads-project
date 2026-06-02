@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottie Ad Layers</title>
+    <title>Lottie Ad Layers with Story Bars</title>
 
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
@@ -21,6 +21,7 @@
             height: 100%;
             overflow: hidden;
             background: transparent;
+            font-family: Arial, sans-serif;
         }
 
         .banner {
@@ -28,6 +29,8 @@
             width: 100%;
             height: 100%;
             cursor: pointer;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
         }
 
         lottie-player {
@@ -39,15 +42,44 @@
         }
 
         #myCans {
-            z-index: 2;
+            z-index: 3;
             display: block;
             object-fit: contain;
         }
 
-        #myTallBanner1 {
+        #myTallBanner1,
+        #myTallBanner2 {
             z-index: 1;
             display: none;
             object-fit: cover;
+        }
+
+        /* --- Story Style Progress Bars --- */
+        .story-progress-container {
+            position: absolute;
+            top: 20px;
+            /* Safely pushed down below the parent close button layout */
+            left: 0;
+            width: 100%;
+            padding: 0 16px;
+            display: none;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .progress-bar-bg {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: #ffffff;
+            transition: width 0s linear;
         }
     </style>
     <script>
@@ -58,30 +90,105 @@
 <body>
 
     <div class="banner" id="adBanner">
-        <lottie-player id="myCans" src="./data5.json" background="transparent" speed="1" loop autoplay>
-        </lottie-player>
+        <div class="story-progress-container" id="storyProgress">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="fill1"></div>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="fill2"></div>
+            </div>
+        </div>
 
-        <lottie-player id="myTallBanner1" src="./data4.json" background="transparent" speed="1" loop autoplay>
-        </lottie-player>
+        <lottie-player id="myCans" src="./data1.json" background="transparent" speed="1" loop autoplay></lottie-player>
+        <lottie-player id="myTallBanner1" src="./data2.json" background="transparent" speed="1"></lottie-player>
+        <lottie-player id="myTallBanner2" src="./data3.json" background="transparent" speed="1"></lottie-player>
     </div>
 
     <script>
         const cans = document.getElementById("myCans");
         const tall1 = document.getElementById("myTallBanner1");
+        const tall2 = document.getElementById("myTallBanner2");
         const banner = document.getElementById("adBanner");
+        const progressContainer = document.getElementById("storyProgress");
+        const fill1 = document.getElementById("fill1");
+        const fill2 = document.getElementById("fill2");
 
-        // Click logic for the floating small cans
-        cans.addEventListener("click", (e) => {
-            e.stopPropagation();
-            window.parent.postMessage("expandAd", "*");
-            cans.style.display = "none";
-            tall1.style.display = "block";
+        let isExpanded = false;
+
+        // ===== CLICK HANDLER =====
+        banner.addEventListener("click", (e) => {
+            if (!isExpanded) {
+                e.stopPropagation();
+                window.parent.postMessage("expandAd", "*");
+            } else {
+                window.open(clickTag, "_blank");
+            }
         });
 
-        // Click logic for landing page redirect on full ad
-        banner.addEventListener("click", () => {
-            if (tall1.style.display === "block") {
-                window.open(clickTag, '_blank');
+        // ===== PRO STYLE PROGRESS BAR (SMOOTH + ACCURATE) =====
+        const STORY_DURATION = 4000; // 4s per slide (change anytime)
+
+        function fillBar(bar, duration, onComplete) {
+            let start = null;
+
+            bar.style.width = "0%";
+
+            function animate(ts) {
+                if (!start) start = ts;
+
+                const elapsed = ts - start;
+                const percent = Math.min((elapsed / duration) * 100, 100);
+
+                bar.style.width = percent + "%";
+
+                if (elapsed < duration) {
+                    requestAnimationFrame(animate);
+                } else {
+                    if (onComplete) onComplete();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // ===== STORY FLOW =====
+        function playScene1() {
+            // reset second bar
+            fill2.style.width = "0%";
+
+            tall2.style.display = "none";
+
+            tall1.style.display = "block";
+            tall1.stop();
+            tall1.play();
+
+            fillBar(fill1, STORY_DURATION, playScene2);
+        }
+
+        function playScene2() {
+            // lock first bar as completed
+            fill1.style.width = "100%";
+
+            tall1.style.display = "none";
+
+            tall2.style.display = "block";
+            tall2.stop();
+            tall2.play();
+
+            fillBar(fill2, STORY_DURATION, playScene1);
+        }
+
+        // ===== START FROM PARENT =====
+        window.addEventListener("message", function (event) {
+            if (event.data === "startStoryMode") {
+                isExpanded = true;
+
+                cans.style.display = "none";
+                banner.classList.add("story-active");
+                progressContainer.style.display = "flex";
+
+                // start story loop
+                playScene1();
             }
         });
     </script>

@@ -175,8 +175,8 @@
 
         /* Full Expanded Modal State Close Button Skin (Clear Circle, Inside Header) */
         .floating-ad.expanded .close-ad {
-            top: 15px;
-            right: 15px;
+            bottom: 33.5rem;
+            right: 5px;
             width: 32px;
             height: 32px;
             background: rgba(255, 255, 255, 0.25);
@@ -276,21 +276,37 @@
     <script>
         const adBox = document.getElementById("floatingAd");
         const backdrop = document.getElementById("adBackdrop");
+        const iframe = adBox.querySelector("iframe");
 
-        // Message receiver from internal iframe canvas operations
+        // ================= RECEIVE EXPAND =================
         window.addEventListener("message", function (event) {
             if (event.data === "expandAd") {
+
                 backdrop.style.display = "block";
+
                 adBox.classList.remove("is-floating");
                 adBox.classList.add("expanded");
+
+                // 🚀 START STORY INSIDE IFRAME
+                iframe.contentWindow.postMessage("startStoryMode", "*");
             }
         });
 
-        // Closes the ad components instantly
+        // ================= CLOSE AD =================
         function closeFullAd() {
             adBox.style.display = "none";
             backdrop.style.display = "none";
+
+            // reset iframe so story restarts clean next time
+            const src = iframe.src;
+            iframe.src = "";
+            setTimeout(() => {
+                iframe.src = src;
+            }, 50);
         }
+
+        // backdrop click close
+        backdrop.addEventListener("click", closeFullAd);
     </script>
 
 </body>
