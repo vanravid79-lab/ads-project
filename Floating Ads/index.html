@@ -67,6 +67,57 @@
             z-index: 5;
         }
 
+        /* Navigation buttons for story (prev / next) */
+        .story-nav {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            z-index: 6;
+            transform: translateY(-50%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 180ms ease, transform 220ms cubic-bezier(.2,.9,.2,1);
+        }
+
+        .story-nav.show {
+            pointer-events: auto;
+            opacity: 1;
+        }
+
+        .story-nav button {
+            pointer-events: auto;
+            background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.35));
+            color: #fff;
+            border: none;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 10px;
+            font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+            backdrop-filter: blur(6px);
+        }
+
+        .story-nav button:focus {
+            outline: 2px solid rgba(255,255,255,0.12);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .story-nav button:hover { background: linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0.5)); transform: translateY(-3px); }
+
+        /* Show nav when story is active */
+        .banner.story-active .story-nav { transform: translateY(-50%) scale(1); }
+
         .progress-bar-bg {
             flex: 1;
             height: 4px;
@@ -99,6 +150,19 @@
             </div>
         </div>
 
+        <div class="story-nav" id="storyNav">
+            <button id="navPrev" aria-label="Previous">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button id="navNext" aria-label="Next">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
         <lottie-player id="myCans" src="../Floating Ads/canFloating/data4.json" background="transparent" speed="1" loop
             autoplay></lottie-player>
         <lottie-player id="myTallBanner1" src="../Floating Ads/tallBanner1/data5.json" background="transparent"
@@ -115,6 +179,11 @@
         const progressContainer = document.getElementById("storyProgress");
         const fill1 = document.getElementById("fill1");
         const fill2 = document.getElementById("fill2");
+        const navPrev = document.getElementById("navPrev");
+        const navNext = document.getElementById("navNext");
+
+        let currentScene = 1; // 1 or 2
+        let fillToken = 0; // used to cancel running fills
 
         let isExpanded = false;
 
@@ -132,11 +201,18 @@
         const STORY_DURATION = 4000; // 4s per slide (change anytime)
 
         function fillBar(bar, duration, onComplete) {
+            const token = ++fillToken;
             let start = null;
 
             bar.style.width = "0%";
 
             function animate(ts) {
+                // stop animation early if story mode was exited or cancelled
+                if (!isExpanded || token !== fillToken) {
+                    bar.style.width = "0%";
+                    return;
+                }
+
                 if (!start) start = ts;
 
                 const elapsed = ts - start;
@@ -147,7 +223,7 @@
                 if (elapsed < duration) {
                     requestAnimationFrame(animate);
                 } else {
-                    if (onComplete) onComplete();
+                    if (onComplete && token === fillToken) onComplete();
                 }
             }
 
@@ -155,33 +231,47 @@
         }
 
         // ===== STORY FLOW =====
-        function playScene1() {
-            // reset second bar
-            fill2.style.width = "0%";
+        function showScene(n) {
+            if (!isExpanded) return;
+            currentScene = n === 1 ? 1 : 2;
 
-            tall2.style.display = "none";
+            // cancel any running fills
+            fillToken++;
 
-            tall1.style.display = "block";
-            tall1.stop();
-            tall1.play();
+            if (currentScene === 1) {
+                // prepare scene 1
+                fill2.style.width = "0%";
+                tall2.style.display = "none";
 
-            fillBar(fill1, STORY_DURATION, playScene2);
+                tall1.style.display = "block";
+                try { tall1.stop(); tall1.play(); } catch(e){}
+
+                fillBar(fill1, STORY_DURATION, () => showScene(2));
+            } else {
+                // prepare scene 2
+                fill1.style.width = "100%";
+                tall1.style.display = "none";
+
+                tall2.style.display = "block";
+                try { tall2.stop(); tall2.play(); } catch(e){}
+
+                fillBar(fill2, STORY_DURATION, () => showScene(1));
+            }
         }
 
-        function playScene2() {
-            // lock first bar as completed
-            fill1.style.width = "100%";
-
-            tall1.style.display = "none";
-
-            tall2.style.display = "block";
-            tall2.stop();
-            tall2.play();
-
-            fillBar(fill2, STORY_DURATION, playScene1);
+        function goNext() {
+            if (!isExpanded) return;
+            const next = currentScene === 1 ? 2 : 1;
+            showScene(next);
         }
 
-        // ===== START FROM PARENT =====
+        function goPrev() {
+            if (!isExpanded) return;
+            const prev = currentScene === 1 ? 2 : 1;
+            showScene(prev);
+        }
+
+        // ===== START / STOP FROM PARENT =====
         window.addEventListener("message", function (event) {
             if (event.data === "startStoryMode") {
                 isExpanded = true;
@@ -191,7 +281,57 @@
                 progressContainer.style.display = "flex";
 
                 // start story loop
-                playScene1();
+                showScene(1);
+
+                // wire nav buttons (stop propagation so banner click doesn't open clickTag)
+                try {
+                    navPrev.addEventListener('click', function (e) { e.stopPropagation(); goPrev(); });
+                    navNext.addEventListener('click', function (e) { e.stopPropagation(); goNext(); });
+                } catch (e) {}
+
+                // show nav with smooth reveal
+                try {
+                    document.getElementById('storyNav').classList.add('show');
+                } catch (e) {}
+
+                // keyboard navigation handler
+                function onStoryKey(e) {
+                    if (!isExpanded) return;
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault(); goPrev();
+                    } else if (e.key === 'ArrowRight') {
+                        e.preventDefault(); goNext();
+                    }
+                }
+
+                window.addEventListener('keydown', onStoryKey);
+
+                // save reference so we can remove it on stop
+                window._onStoryKey = onStoryKey;
+            }
+
+            if (event.data === "stopStoryMode") {
+                // collapse story mode and restore floating can
+                isExpanded = false;
+
+                cans.style.display = "block";
+                banner.classList.remove("story-active");
+                progressContainer.style.display = "none";
+
+                // stop any playing tall banners and reset progress
+                try {
+                    if (tall1.stop) tall1.stop();
+                    if (tall2.stop) tall2.stop();
+                } catch (e) {}
+
+                tall1.style.display = "none";
+                tall2.style.display = "none";
+                fill1.style.width = "0%";
+                fill2.style.width = "0%";
+
+                // hide nav and remove keyboard handler
+                try { document.getElementById('storyNav').classList.remove('show'); } catch (e) {}
+                try { if (window._onStoryKey) window.removeEventListener('keydown', window._onStoryKey); window._onStoryKey = null; } catch (e) {}
             }
         });
     </script>

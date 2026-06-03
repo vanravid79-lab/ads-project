@@ -294,15 +294,40 @@
 
         // ================= CLOSE AD =================
         function closeFullAd() {
-            adBox.style.display = "none";
-            backdrop.style.display = "none";
+            // If currently expanded, collapse back to floating
+            if (adBox.classList.contains("expanded")) {
+                backdrop.style.display = "none";
 
-            // reset iframe so story restarts clean next time
-            const src = iframe.src;
-            iframe.src = "";
-            setTimeout(() => {
-                iframe.src = src;
-            }, 50);
+                adBox.classList.remove("expanded");
+                adBox.classList.add("is-floating");
+                adBox.style.display = "block";
+
+                // tell iframe to stop story mode so the floating can reappears
+                try {
+                    iframe.contentWindow.postMessage("stopStoryMode", "*");
+                } catch (err) {
+                    // fallback: reload iframe if postMessage fails
+                    const src = iframe.src;
+                    iframe.src = "";
+                    setTimeout(() => {
+                        iframe.src = src;
+                    }, 50);
+                }
+            } else {
+                // If already in floating state, close/remove it entirely
+                adBox.style.display = "none";
+                backdrop.style.display = "none";
+
+                // stop any story inside iframe to free resources
+                try {
+                    iframe.contentWindow.postMessage("stopStoryMode", "*");
+                } catch (err) {
+                    // best-effort: unload iframe
+                    try {
+                        iframe.src = "";
+                    } catch (e) {}
+                }
+            }
         }
 
         // backdrop click close
