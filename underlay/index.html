@@ -8,18 +8,22 @@
 
     <style>
         html,
-
         body {
             margin: 0;
             padding: 0;
+            width: 100%;
             height: 100%;
-
         }
 
-        /* 🎯 Ad container */
         .banner {
-            margin: 0;
-            padding: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        lottie-player {
+            width: 100%;
+            height: 100%;
         }
     </style>
 
@@ -28,16 +32,13 @@
     <script>
         var clickTag = "https://www.google.com";
     </script>
-
 </head>
 
 <body>
 
-    <div class="banner" onclick="window.open(clickTag,'_blank')">
-
-        <lottie-player src="./data12.json" background="transparent" speed="1" loop autoplay>
+    <div class="banner" onclick="window.open(clickTag, '_blank')">
+        <lottie-player src="data12.json" background="transparent" speed="1" loop autoplay>
         </lottie-player>
-
     </div>
 
 </body>
